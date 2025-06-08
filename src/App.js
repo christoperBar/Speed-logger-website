@@ -1,23 +1,45 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from "react";
+import { database } from "./firebaseConfig";
+import { ref, onValue } from "firebase/database";
+import "./App.css";
 
 function App() {
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    const speedRef = ref(database, "vehicle_speed_log");
+    onValue(speedRef, (snapshot) => {
+      const raw = snapshot.val();
+      if (raw) {
+        const list = Object.entries(raw).map(([timestamp, val]) => ({
+          timestamp,
+          speed: val.speed,
+        }));
+        // urutkan terbaru di atas
+        setData(list.sort((a, b) => b.timestamp - a.timestamp));
+      }
+    });
+  }, []);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>🚗 Log Kecepatan Mobil</h1>
+      <table>
+        <thead>
+          <tr>
+            <th>Waktu</th>
+            <th>Kecepatan (km/h)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {data.map((entry) => (
+            <tr key={entry.timestamp}>
+              <td>{new Date(Number(entry.timestamp)).toLocaleString()}</td>
+              <td>{entry.speed}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
