@@ -1,5 +1,5 @@
 # Websitenya
 
 - npm install
-- npm start
-- buka localhost:3000
+- npm run dev
+- buka localhost:5173
